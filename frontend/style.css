@@ -1,0 +1,56 @@
+/* Custom styles for a premium, dark theme */
+:root {
+  --primary: #1e3a8a; /* Dark Blue */
+  --secondary: #fcd34d; /* Gold/Amber Accent */
+  --bg-dark: #111827; /* Dark Gray/Blue Background */
+  --card-dark: #1f2937; /* Slightly Lighter Card */
+}
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--bg-dark);
+}
+.chat-container {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+/* Custom Scrollbar for premium feel */
+.chat-container::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-container::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 4px;
+}
+.chat-container::-webkit-scrollbar-track {
+  background-color: var(--card-dark);
+}
+
+.bot-message {
+  background-color: var(--card-dark);
+}
+.user-message {
+  background-color: var(--primary);
+}
+.loading-animation {
+  width: 10px;
+  height: 10px;
+  margin: 0 2px;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.loading-animation:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.loading-animation:nth-child(2) {
+  animation-delay: -0.16s;
+}
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}

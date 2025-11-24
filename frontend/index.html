@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MobileGuru - Your AI Mobile Advisor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --primary: #1e3a8a; /* Dark Blue */
+        --secondary: #fcd34d; /* Gold/Amber Accent */
+        --bg-dark: #111827; /* Dark Gray/Blue Background */
+        --card-dark: #1f2937; /* Slightly Lighter Card */
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-dark);
+      }
+      .chat-container {
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        scroll-behavior: smooth;
+      }
+      .chat-container::-webkit-scrollbar {
+        width: 8px;
+      }
+      .chat-container::-webkit-scrollbar-thumb {
+        background-color: #4b5563;
+        border-radius: 4px;
+      }
+      .chat-container::-webkit-scrollbar-track {
+        background-color: var(--card-dark);
+      }
+
+      .bot-message {
+        background-color: var(--card-dark);
+      }
+      .user-message {
+        background-color: var(--primary);
+      }
+      .loading-animation {
+        width: 10px;
+        height: 10px;
+        margin: 0 2px;
+        animation: bounce 1.4s infinite ease-in-out both;
+      }
+      .loading-animation:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+      .loading-animation:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+      @keyframes bounce {
+        0%,
+        80%,
+        100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div class="flex flex-col h-screen w-full">
+      <!-- Header -->
+      <header
+        class="bg-gradient-to-r from-gray-900 to-gray-800 p-4 shadow-lg sticky top-0 z-10"
+      >
+        <h1
+          class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500 tracking-wider"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 inline-block mr-2"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M7 2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h2zM7 9a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h2zM7 16a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h2zM15 2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h2zM15 9a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h2zM15 16a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h2z"
+            />
+          </svg>
+          MobileGuru
+        </h1>
+        <p class="text-gray-400 text-sm mt-1">
+          Your AI Advisor for the Perfect Smartphone Choice.
+        </p>
+      </header>
+
+      <!-- Chat History -->
+      <main class="flex-grow chat-container p-6 space-y-4">
+        <!-- Initial Greeting from Bot -->
+        <div class="flex justify-start">
+          <div
+            class="bot-message max-w-lg rounded-xl rounded-tl-none p-4 text-gray-200 shadow-md"
+          >
+            <p class="font-bold text-yellow-400">MobileGuru:</p>
+            <p>
+              Hello! I am MobileGuru, your dedicated AI advisor for all things
+              mobile. I can help you compare processors, set budgets, and find
+              the perfect phone. To start, tell me: **What is your budget range,
+              and what is your absolute top priority (e.g., camera, battery,
+              gaming)?**
+            </p>
+          </div>
+        </div>
+        <div id="messages-container"></div>
+      </main>
+
+      <!-- Input Area (Sticky Footer) -->
+      <footer
+        class="bg-gray-900 p-4 border-t border-gray-700 sticky bottom-0 z-10"
+      >
+        <div class="flex space-x-3">
+          <input
+            type="text"
+            id="user-input"
+            placeholder="Ask MobileGuru about processors, budgets, or recommendations..."
+            class="flex-grow p-3 rounded-full bg-gray-700 text-white placeholder-gray-400 border border-transparent focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition duration-300"
+            onkeypress="if(event.keyCode === 13) sendMessage()"
+            autocomplete="off"
+          />
+          <button
+            id="send-button"
+            onclick="sendMessage()"
+            class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold p-3 rounded-full shadow-lg transition duration-300 transform hover:scale-105 disabled:bg-gray-600 disabled:transform-none"
+            aria-label="Send message"
+          >
+            <!-- Send Icon (Lucide-react equivalent) -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" />
+            </svg>
+          </button>
+        </div>
+        <div
+          id="status-message"
+          class="text-center text-sm mt-2 text-red-400 hidden"
+        ></div>
+      </footer>
+    </div>
+
+    <script>
+      const SERVER_URL = "http://localhost:5000/chat";
+
+      let chatHistory = [];
+      let isProcessing = false;
+
+      let messagesContainer;
+      let userInput;
+      let sendButton;
+      let statusMessage;
+
+      function initDOM() {
+        messagesContainer = document.getElementById("messages-container");
+        userInput = document.getElementById("user-input");
+        sendButton = document.getElementById("send-button");
+        statusMessage = document.getElementById("status-message");
+
+        if (userInput) {
+          userInput.focus();
+        }
+      }
+
+      function formatMarkdown(text) {
+        let html = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        html = html.replace(/\n/g, "<br>");
+        return html;
+      }
+
+      function createMessageElement(text, isUser) {
+        if (!messagesContainer) return;
+
+        const messageWrapper = document.createElement("div");
+        messageWrapper.className = `flex ${
+          isUser ? "justify-end" : "justify-start"
+        }`;
+
+        const messageBubble = document.createElement("div");
+        messageBubble.className = `max-w-lg rounded-xl p-4 text-white shadow-lg break-words transition duration-500 ${
+          isUser
+            ? "user-message rounded-br-none"
+            : "bot-message rounded-tl-none"
+        }`;
+
+        if (!isUser) {
+          const header = document.createElement("p");
+          header.className = "font-bold text-yellow-400 mb-1";
+          header.textContent = "MobileGuru:";
+          messageBubble.appendChild(header);
+        }
+
+        const content = document.createElement("p");
+        content.innerHTML = formatMarkdown(text);
+        messageBubble.appendChild(content);
+
+        messageWrapper.appendChild(messageBubble);
+        messagesContainer.appendChild(messageWrapper);
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        return messageBubble;
+      }
+
+      function showLoading(targetElement) {
+        targetElement.innerHTML = "";
+        const dots = ["bg-yellow-500", "bg-yellow-400", "bg-yellow-300"];
+        dots.forEach((color) => {
+          const dot = document.createElement("div");
+          dot.className = `loading-animation rounded-full inline-block ${color}`;
+          targetElement.appendChild(dot);
+        });
+      }
+
+      async function sendMessage() {
+        if (isProcessing || !userInput) return;
+
+        const userText = userInput.value.trim();
+        if (!userText) return;
+
+        isProcessing = true;
+        userInput.value = "";
+        if (sendButton) sendButton.disabled = true;
+
+        // 1. Display User Message
+        createMessageElement(userText, true);
+
+        // 2. Add user message to temporary history for sending
+        const currentChatHistory = [
+          ...chatHistory,
+          { role: "user", parts: [{ text: userText }] },
+        ];
+
+        // 3. Display Loading Message
+        const botBubble = createMessageElement("", false);
+        showLoading(botBubble.querySelector("p:last-child"));
+
+        // 4. API Call with Exponential Backoff
+        const MAX_RETRIES = 5;
+        let responseText =
+          "Sorry, MobileGuru is currently unavailable. Please try again later.";
+        if (statusMessage) statusMessage.classList.add("hidden"); // Clear previous errors
+
+        try {
+          for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            try {
+              const response = await fetch(SERVER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chatHistory: currentChatHistory }),
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                responseText = data.answer;
+
+                chatHistory = currentChatHistory;
+                chatHistory.push({
+                  role: "model",
+                  parts: [{ text: responseText }],
+                });
+                break; // Success
+              } else {
+                // If it's a 429 or 500 error, retry
+                if (response.status === 429 || response.status >= 500) {
+                  if (attempt < MAX_RETRIES - 1) {
+                    const delay =
+                      Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    continue; // Retry
+                  } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(
+                      errorData.error ||
+                        `Server failed after ${MAX_RETRIES} attempts with status ${response.status}.`
+                    );
+                  }
+                } else {
+                  const errorData = await response.json().catch(() => ({}));
+                  // If the server returns a 404/400 or other client error
+                  throw new Error(
+                    errorData.error || `Server Error: ${response.statusText}`
+                  );
+                }
+              }
+            } catch (error) {
+              if (attempt === MAX_RETRIES - 1) {
+                throw error;
+              }
+            }
+          }
+        } catch (error) {
+          if (statusMessage) {
+            statusMessage.textContent = `CRITICAL ERROR: ${error.message}. Please ensure your Node.js server (server.js) is running on port 3000.`;
+            statusMessage.classList.remove("hidden");
+          }
+        } finally {
+          botBubble.querySelector("p:last-child").innerHTML =
+            formatMarkdown(responseText);
+
+          isProcessing = false;
+          if (sendButton) sendButton.disabled = false;
+          if (userInput) userInput.focus();
+        }
+      }
+
+      window.onload = initDOM;
+    </script>
+  </body>
+</html>
