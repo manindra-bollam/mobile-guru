@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.send("index.html");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.post("/chat", async (req, res) => {
