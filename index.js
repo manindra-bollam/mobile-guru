@@ -15,6 +15,11 @@ const SYSTEM_INSTRUCTION =
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+  res.sendFile("index.html");
+});
 
 app.post("/chat", async (req, res) => {
   if (!GEMINI_API_KEY) {
