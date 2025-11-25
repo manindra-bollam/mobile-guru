@@ -15,10 +15,11 @@ const SYSTEM_INSTRUCTION =
 
 app.use(cors());
 app.use(express.json());
+app.set("view engine", "ejs");
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.render("mobile_guru");
 });
 
 app.post("/chat", async (req, res) => {
